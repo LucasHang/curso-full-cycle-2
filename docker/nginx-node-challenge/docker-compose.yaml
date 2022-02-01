@@ -1,0 +1,49 @@
+version: '3'
+
+services:
+
+  app:
+    container_name: app
+    build:
+      context: ./node
+    image: lucashang/app
+    # timeout alto para prever a demora no primeiro pull da imagem do mysql
+    entrypoint: dockerize -wait tcp://db:3306 -timeout 60s node index.js
+    networks:
+      - node-network
+    tty: true
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+
+  db:
+    image: mysql:5.7
+    command: --innodb-use-native-aio=0
+    container_name: db
+    restart: always
+    tty: true
+    volumes:
+      - ./mysql/data:/var/lib/mysql
+      - ./mysql/init:/docker-entrypoint-initdb.d
+    environment:
+      - MYSQL_DATABASE=nodedb
+      - MYSQL_ROOT_PASSWORD=root
+    networks:
+      - node-network
+
+  nginx:
+    build:
+      context: ./nginx
+    image: lucashang/nginx
+    container_name: nginx
+    networks:
+      - node-network
+    ports:
+      - "8080:80"
+    depends_on:
+      - app
+
+networks:
+  node-network:
+    driver: bridge
