@@ -6,7 +6,7 @@ RUN echo '\
     package main \n\
     import "fmt" \n\
     func main() { \n\
-        fmt.Println("hello world") \n\
+        fmt.Println("Code.education Rocks!") \n\
     }\
 ' > hello.go
 
