@@ -1,0 +1,1 @@
+docker compose up -d && docker exec -it go_grpc bash

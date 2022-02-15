@@ -1,0 +1,14 @@
+version: '3'
+
+services:
+
+  go_grpc:
+    container_name: go_grpc
+    build:
+      context: ./
+      dockerfile: Dockerfile
+    image: lucashang/go_grpc
+    stdin_open: true
+    tty: true
+    volumes: 
+      - ./src:/home/grpc-hello-world
