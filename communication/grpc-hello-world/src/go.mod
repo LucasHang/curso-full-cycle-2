@@ -1,4 +1,4 @@
-module github.com/LucasHang/curso-full-cycle-2/communication/grpc-hello-world
+module github.com/LucasHang/curso-full-cycle-2/communication/grpc-hello-world/src
 
 go 1.17
 
