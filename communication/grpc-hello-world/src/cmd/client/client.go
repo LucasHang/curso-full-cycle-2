@@ -21,7 +21,8 @@ func main() {
 	client := pb.NewUserServiceClient(connection);
 	// AddUser(client);
 	// AddUserVerbose(client);
-	AddUsers(client);
+	// AddUsers(client);
+	AddUserStreamBoth(client);
 }
 
 func AddUser(client pb.UserServiceClient) {
@@ -103,4 +104,61 @@ func AddUsers(client pb.UserServiceClient) {
 	}
 
 	fmt.Println(res);
+}
+
+func AddUserStreamBoth(client pb.UserServiceClient) {
+	reqs := []*pb.User{
+		&pb.User{
+			Id: "l1",
+			Name: "lucas 1",
+			Email: "lucas1@gmail.com",
+		},
+		&pb.User{
+			Id: "l2",
+			Name: "lucas 2",
+			Email: "lucas2@gmail.com",
+		},
+		&pb.User{
+			Id: "l3",
+			Name: "lucas 3",
+			Email: "lucas3@gmail.com",
+		},
+	}
+
+	stream, err := client.AddUserStreamBoth(context.Background());
+	if(err != nil){
+		log.Fatalf("Error creating request: %v", err);
+	}
+
+	wait := make(chan int);
+
+	go func() {
+		for _, req := range reqs {
+			fmt.Println("Sending user: ", req.Name);
+			stream.Send(req);
+			time.Sleep(time.Second * 3);
+		}
+		stream.CloseSend();
+	}();
+
+	go func() {
+		for{
+			res, err := stream.Recv();
+
+			if(err != nil){
+				if(err == io.EOF){
+					break;
+				}
+
+				log.Fatalf("Error reveiving data: %v", err);
+				break;
+			}
+
+			fmt.Printf("Receiving user %v com status: %v\n", res.GetUser().GetName(), res.GetStatus());
+		}
+
+		close(wait);
+	}();
+
+	<-wait;
 }
